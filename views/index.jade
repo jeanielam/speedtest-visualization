@@ -1,6 +1,95 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
-  p Results #{results}
+  script(src="https://www.amcharts.com/lib/3/amcharts.js")
+  script(src="https://www.amcharts.com/lib/3/serial.js")
+  script(src="https://www.amcharts.com/lib/3/plugins/export/export.min.js")
+  link(rel='stylesheet', href='https://www.amcharts.com/lib/3/plugins/export/export.css', type='text/css', media='all')
+  script(src="https://www.amcharts.com/lib/3/themes/light.js")
+  script(src="javascripts/json.date-extensions.min.js")
+  h1 Speedtest Results
+
+  #chart
+
+  script(type='text/javascript').
+    function zoomChart() {
+      // different zoom methods can be used - zoomToIndexes, zoomToDates, zoomToCategoryValues
+      chart.zoomToIndexes(chartData.length - 40, chartData.length - 1);
+    }
+
+    function transformData(data) {
+      var chartData = [];
+      for (var i = 0; i < data.length; i++) {
+        var date = data[i]['date'].split(".")[0];
+        var d = new Date(date);
+
+        chartData.push({
+          date: d,
+          download: parseFloat(data[i]['download']),
+          upload: parseFloat(data[i]['upload']),
+          ping: parseFloat(data[i]['ping'])
+        });
+      }
+      console.log(chartData);
+      return chartData
+    }
+
+    var chartData = transformData(!{JSON.stringify(results)});
+
+    var chart = AmCharts.makeChart("chart", {
+      "type": "serial",
+      "theme": "light",
+      "marginRight": 80,
+      "autoMarginOffset": 20,
+      "marginTop": 7,
+      "dataProvider": chartData,
+      "valueAxes": [{
+        "axisAlpha": 0.2,
+        "dashLength": 1,
+        "position": "left",
+        "title": "Download Speed (Mbit/s)"
+      }],
+      "mouseWheelZoomEnabled": true,
+      "graphs": [{
+        "id": "g1",
+        "balloonText": "[[download]]",
+        "bullet": "round",
+        "bulletBorderAlpha": 3,
+        "bulletColor": "#FFFFFF",
+        "hideBulletsCount": 50,
+        "title": "red line",
+        "valueField": "download",
+        "useLineColorForBulletBorder": true,
+        "balloon":{
+            "drop":true
+        }
+      }],
+      "chartScrollbar": {
+        "autoGridCount": true,
+        "graph": "g1",
+        "scrollbarHeight": 40
+      },
+      "chartCursor": {
+         "limitToGraph":"g1"
+      },
+      "categoryField": "date",
+      "categoryAxis": {
+          "parseDates": true,
+          "axisColor": "#DADADA",
+          "dashLength": 1,
+          "minorGridEnabled": true,
+          "minPeriod": "hh"
+      },
+      "titles": [
+        {
+          "id": "Title-1",
+          "size": 16,
+          "text": "Download speeds over time (Mbit/s)"
+        }
+      ],
+      "export": {
+          "enabled": true
+      }
+    });
+    chart.addListener("rendered", zoomChart);
+    zoomChart();

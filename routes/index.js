@@ -9,7 +9,7 @@ router.get('/', function(req, res, next) {
   connection.query(query, {type: connection.QueryTypes.SELECT})
       .then(results => {
     console.log(results)
-  res.render("index", {title: "Express", results: results})
+  res.render("index", {results: results})
   })
 });
 

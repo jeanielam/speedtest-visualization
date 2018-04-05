@@ -6,7 +6,10 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "amcharts3": "^3.21.12",
     "cookie-parser": "~1.4.3",
+    "d3": "^5.0.0",
+    "dc": "^2.1.10",
     "debug": "~2.6.9",
     "dotenv": "^5.0.1",
     "express": "~4.16.0",
